@@ -118,3 +118,8 @@ runs/
 !outputs/.gitkeep
 !outputs/evaluation/.gitkeep
 !outputs/visualizations/.gitkeep
+
+# =====================================================
+# Input Videos
+# =====================================================
+data/videos/
