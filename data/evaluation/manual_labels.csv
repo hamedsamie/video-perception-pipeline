@@ -1,0 +1,7 @@
+video_id,frame_name,frame_index,class_label,present,box_optional,notes
+165895,frame_000000.jpg,0,wooden spoon,1,,spoon visible near cooking pot
+165895,frame_000030.jpg,30,wooden spoon,1,,spoon partially visible
+165895,frame_000060.jpg,60,wooden spoon,0,,spoon not visible
+839878,frame_000000.jpg,0,hairdryer,1,,hairdryer visible on table
+839878,frame_000030.jpg,30,hairdryer,1,,hairdryer partially occluded by hand
+839878,frame_000060.jpg,60,hairdryer,0,,hairdryer outside view
