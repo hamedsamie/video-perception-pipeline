@@ -67,6 +67,7 @@ video-perception-pipeline/
 │   ├── tracks/
 │   │   ├── tracked_detections.csv
 │   │   └── track_summary.csv
+│   ├── predictions.jsonl
 │   ├── visualizations/
 │   │   └── detections/
 │   │       ├── 165895/
@@ -76,7 +77,8 @@ video-perception-pipeline/
 │   ├── download_videos.py
 │   ├── sample_frames.py
 │   ├── run_baseline_detection.py
-│   └── run_tracking.py
+│   ├── run_tracking.py
+│   └── export_predictions_jsonl.py
 ├── README.md
 ├── requirements.txt
 └── .gitignore
@@ -232,6 +234,48 @@ This step introduces temporal reasoning by converting independent frame detectio
 
 ---
 
+## Step 5 — Prediction Export
+
+Tracked detections are exported into the required JSONL prediction format.
+
+The exporter reads:
+
+```text
+outputs/tracks/tracked_detections.csv
+```
+
+and writes:
+
+```text
+outputs/predictions.jsonl
+```
+
+Each line contains one prediction object:
+
+```json
+{
+  "video_id": "839878",
+  "frame_index": 1234,
+  "timestamp_sec": 41.1,
+  "class_label": "hair dryer",
+  "box": [x1, y1, x2, y2],
+  "track_id": 3,
+  "confidence": 0.72,
+  "method": "YOLO + IoU Tracker",
+  "notes": "possible occlusion or re-entry"
+}
+```
+
+Run:
+
+```bash
+python3 src/export_predictions_jsonl.py
+```
+
+This file is one of the required project deliverables.
+
+---
+
 # Outputs
 
 ## Detection Outputs
@@ -260,6 +304,30 @@ Contains:
 ```text
 tracked_detections.csv
 track_summary.csv
+```
+
+---
+
+## Prediction Outputs
+
+```text
+outputs/predictions.jsonl
+```
+
+Contains one JSON object per predicted detection.
+
+Each prediction includes:
+
+```text
+video_id
+frame_index
+timestamp_sec
+class_label
+box
+track_id
+confidence
+method
+notes
 ```
 
 ---
@@ -329,5 +397,6 @@ python3 src/sample_frames.py
 python3 src/run_baseline_detection.py
 
 python3 src/run_tracking.py
-```
 
+python3 src/export_predictions_jsonl.py
+```
