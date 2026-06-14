@@ -1,44 +1,199 @@
 # Video Perception Pipeline
 
-## Objective
+## Table of Contents
 
-Build a small video perception pipeline capable of:
+- [Video Perception Pipeline](#video-perception-pipeline)
+  - [Table of Contents](#table-of-contents)
+  - [1. Project Overview](#1-project-overview)
+  - [2. Problem Understanding](#2-problem-understanding)
+  - [3. Selected Videos](#3-selected-videos)
+  - [4. Methodology](#4-methodology)
+    - [Video Download and Validation](#video-download-and-validation)
+    - [Frame Sampling](#frame-sampling)
+    - [Object Detection](#object-detection)
+    - [Temporal Tracking](#temporal-tracking)
+    - [Prediction Export](#prediction-export)
+    - [Visualization](#visualization)
+    - [Evaluation](#evaluation)
+  - [5. Pipeline Architecture](#5-pipeline-architecture)
+  - [6. Tracking Logic](#6-tracking-logic)
+  - [7. Evaluation Methodology](#7-evaluation-methodology)
+  - [8. Reviewer Feedback Loop](#8-reviewer-feedback-loop)
+  - [9. Bounded Improvement](#9-bounded-improvement)
+  - [10. Results and Analysis](#10-results-and-analysis)
+  - [11. Failure Analysis](#11-failure-analysis)
+  - [12. Assumptions](#12-assumptions)
+  - [13. Limitations](#13-limitations)
+  - [14. Future Work](#14-future-work)
+  - [15. Repository Structure](#15-repository-structure)
+  - [16. Environment Setup](#16-environment-setup)
+  - [17. Reproduction Steps](#17-reproduction-steps)
+  - [18. Outputs](#18-outputs)
+  - [19. Conclusion](#19-conclusion)
 
-- Video ingestion
-- Frame sampling
-- Baseline object detection
-- Temporal tracking
-- Prediction export
-- Visualization
-- Evaluation
+## 1. Project Overview
 
-The goal is to process egocentric task videos and generate inspectable perception outputs that can later be reviewed by humans.
+This project implements a lightweight video perception pipeline for egocentric task videos. The pipeline ingests selected videos, samples frames, applies baseline object detection, associates detections over time, exports structured predictions, generates visualizations, and evaluates the results against a small human-reviewed subset.
 
----
+## 2. Problem Understanding
 
-# Selected Videos and Strategy
+Video perception extends object detection into the temporal domain. The objective is not only to detect objects in individual frames but also to maintain consistent object identities over time and produce outputs that can be reviewed and evaluated.
 
-| Video ID | Category          | Primary Object | Reason                                                                                                                     |
-| -------- | ----------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| 165895   | Food Preparation  | Wooden Spoon   | Good manipulation sequence with hands, tool usage, occlusion, and repeated object motion.                                  |
-| 839878   | Repair / Assembly | Hairdryer      | Good repair-style sequence with tool-like object handling, re-entry, viewpoint changes, and temporal reasoning challenges. |
+## 3. Selected Videos
 
-These two videos are selected because they are better suited for demonstrating a video perception pipeline than simpler static scenes.
+| Video ID | Category          | Target Object |
+| -------- | ----------------- | ------------- |
+| 165895   | Food Preparation  | Wooden Spoon  |
+| 839878   | Repair / Assembly | Hairdryer     |
 
-They contain:
+Reasons for selection:
 
-- object manipulation by hands
-- partial occlusions
-- object re-entry after disappearing
-- changing viewpoints
-- tool-like objects
-- temporal continuity challenges
+- Object manipulation
+- Hand interactions
+- Partial occlusions
+- Object re-entry
+- Viewpoint changes
+- Temporal reasoning challenges
 
-The goal is not only to detect objects frame by frame, but also to preserve useful temporal information across the video.
+## 4. Methodology
 
----
+### Video Download and Validation
 
-# Repository Structure
+Videos are downloaded and validated before processing.
+
+### Frame Sampling
+
+One frame is sampled every second.
+
+Timestamp computation:
+
+```text
+timestamp_sec = original_frame_index / fps
+```
+
+### Object Detection
+
+YOLOv8n (Ultralytics) is used as the baseline detector.
+
+### Temporal Tracking
+
+A custom IoU-based tracker associates detections across frames.
+
+### Prediction Export
+
+Predictions are exported to:
+
+```text
+outputs/predictions.jsonl
+```
+
+### Visualization
+
+Annotated visualizations are generated for inspection.
+
+### Evaluation
+
+Evaluation is performed on a manually reviewed frame subset.
+
+## 5. Pipeline Architecture
+
+```text
+Video
+  ↓
+Frame Sampling
+  ↓
+YOLOv8n Detection
+  ↓
+IoU Tracking
+  ↓
+Prediction Export
+  ↓
+Visualization + Evaluation
+```
+
+## 6. Tracking Logic
+
+1. Load detections.
+2. Compare with active tracks.
+3. Match by class.
+4. Compute IoU.
+5. Associate if threshold passes.
+6. Create new track otherwise.
+7. Allow limited missed frames.
+8. Close expired tracks.
+
+## 7. Evaluation Methodology
+
+Metrics:
+
+- Precision
+- Recall
+- False positives
+- Missed detections
+- Track fragmentation
+- ID switches
+
+## 8. Reviewer Feedback Loop
+
+Simulated reviewer feedback focuses on:
+
+- Missed detections
+- Occlusions
+- Track fragmentation
+- Viewpoint changes
+- Re-entry failures
+
+## 9. Bounded Improvement
+
+Very small detections are removed before tracking and export.
+
+Observed outcome:
+
+- Removes low-value detections.
+- Reduces clutter.
+- Evaluation changes very little.
+- Demonstrates workflow rather than major performance gains.
+
+## 10. Results and Analysis
+
+The pipeline successfully produces detections, tracks, visualizations, exports, and evaluation artifacts. Performance remains limited because the detector is not specialized for the selected target objects.
+
+## 11. Failure Analysis
+
+Observed failure modes:
+
+- Missed detections
+- Occlusions
+- Track fragmentation
+- Viewpoint changes
+- Re-entry failures
+
+## 12. Assumptions
+
+- One frame per second is sufficient.
+- Generic YOLOv8n is acceptable as a baseline.
+- IoU tracking is sufficient for demonstration.
+- Small evaluation subset is acceptable for analysis.
+
+## 13. Limitations
+
+- YOLOv8n is not specialized for wooden spoons or hairdryers.
+- Occlusions remain difficult.
+- IoU-only tracking is fragile.
+- No appearance-based re-identification.
+- No segmentation.
+- Small evaluation subset.
+
+## 14. Future Work
+
+- Appearance embeddings
+- DeepSORT / ByteTrack
+- CLIP or DINO embeddings
+- Segment Anything
+- Open-vocabulary detection
+- Larger evaluation set
+
+## 15. Repository Structure
 
 ```text
 video-perception-pipeline/
@@ -52,179 +207,36 @@ video-perception-pipeline/
 └── .gitignore
 ```
 
----
+## 16. Environment Setup
 
-# Pipeline Overview
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-## Video Download and Validation
+## 17. Reproduction Steps
 
 ```bash
 python3 src/download_videos.py
-```
-
-## Frame Sampling
-
-```bash
 python3 src/sample_frames.py
-```
-
-## Baseline Object Detection
-
-Model:
-
-```text
-yolov8n.pt
-```
-
-Run:
-
-```bash
 python3 src/run_baseline_detection.py
-```
-
-## Temporal Tracking
-
-```bash
-python3 src/run_tracking.py
-```
-
-## Prediction Export
-
-```bash
+python3 src/track_detections.py
 python3 src/export_predictions_jsonl.py
-```
-
-## Prediction Visualization
-
-```bash
-python3 src/visualize_predictions.py
-```
-
-## Manual Evaluation Preparation
-
-```bash
-python3 src/prepare_manual_evaluation.py
-```
-
-## Baseline Evaluation
-
-```bash
+python3 src/generate_visualizations.py
 python3 src/evaluate_predictions.py
 ```
 
-Detection metrics:
+## 18. Outputs
 
 ```text
-true positives
-false positives
-missed detections
-true negatives
-precision
-recall
-```
-
-Tracking metrics:
-
-```text
-track fragmentation
-ID switches
-```
-
----
-
-## Simulated Reviewer Feedback
-
-Reviewer feedback is stored in:
-
-```text
-data/evaluation/reviewer_feedback.csv
-```
-
-The feedback captures common perception and tracking issues observed during manual review, including:
-
-```text
-missed detections
-partial visibility
-occlusions
-tracking instability
-viewpoint changes
-ID consistency issues
-potential false positives
-```
-
-The purpose is to demonstrate a human-in-the-loop workflow where reviewer observations are used to guide targeted improvements to the perception pipeline.
-
----
-
-## Reviewer-Guided Pipeline Improvement
-
-A bounded improvement was implemented based on reviewer feedback.
-
-### Improvement
-
-Very small detection boxes are filtered before tracking and export:
-
-```python
-MIN_BOX_AREA = 10000
-```
-
-Detections with a bounding-box area below this threshold are removed. This reduces low-value detections that are more likely to correspond to clutter, partial objects, or unstable predictions.
-
-### Evaluation Comparison
-
-| Metric               | Baseline | Improved |
-| -------------------- | -------- | -------- |
-| Predictions Exported | 2236     | 2212     |
-| True Positives       | 6        | 6        |
-| False Positives      | 0        | 0        |
-| Missed Detections    | 94       | 94       |
-| Precision            | 1.00     | 1.00     |
-| Recall               | 0.06     | 0.06     |
-
-### Outcome
-
-The improvement removed 24 small detections from the prediction export while preserving all reviewed target-object detections. Precision and recall remained unchanged, indicating that the removed detections did not contribute to the evaluated wooden spoon or hairdryer instances.
-
-This demonstrates a simple reviewer-guided refinement process without modifying the detector model or tracking algorithm.
-
----
-
-# Outputs
-
-```text
+outputs/frames/
 outputs/detections/
-outputs/tracks/
 outputs/predictions.jsonl
 outputs/visualizations/
 outputs/evaluation/
 ```
 
-Human review artifacts:
+## 19. Conclusion
 
-```text
-data/evaluation/manual_labels.csv
-data/evaluation/reviewer_feedback.csv
-```
-
----
-
-# Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-# Full Pipeline Execution
-
-```bash
-python3 src/download_videos.py
-python3 src/sample_frames.py
-python3 src/run_baseline_detection.py
-python3 src/run_tracking.py
-python3 src/export_predictions_jsonl.py
-python3 src/visualize_predictions.py
-python3 src/prepare_manual_evaluation.py
-python3 src/evaluate_predictions.py
-```
+This project demonstrates a complete lightweight video perception workflow including ingestion, detection, tracking, export, visualization, evaluation, reviewer feedback, and bounded improvement. The pipeline serves as a reproducible baseline and highlights opportunities for future improvements in detection and tracking quality.
