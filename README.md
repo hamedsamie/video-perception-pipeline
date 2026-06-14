@@ -46,6 +46,8 @@ video-perception-pipeline/
 │   └── selected_videos.yaml
 ├── data/
 │   ├── videos/
+│   ├── evaluation/
+│   │   └── manual_labels.csv
 │   ├── videos.json
 │   └── video_manifest.md
 ├── docs/
@@ -65,7 +67,9 @@ video-perception-pipeline/
 │   ├── run_baseline_detection.py
 │   ├── run_tracking.py
 │   ├── export_predictions_jsonl.py
-│   └── visualize_predictions.py
+│   ├── visualize_predictions.py
+│   ├── prepare_manual_evaluation.py
+│   └── evaluate_predictions.py
 ├── README.md
 ├── requirements.txt
 └── .gitignore
@@ -81,18 +85,6 @@ video-perception-pipeline/
 python3 src/download_videos.py
 ```
 
-Validates:
-
-```text
-video_id
-path
-fps
-frame_count
-duration
-```
-
----
-
 ## Frame Sampling
 
 ```bash
@@ -103,6 +95,12 @@ Frames are stored under:
 
 ```text
 outputs/frames/<video_id>/
+```
+
+Metadata is stored in:
+
+```text
+outputs/frames/frame_metadata.csv
 ```
 
 ---
@@ -119,13 +117,6 @@ Run:
 
 ```bash
 python3 src/run_baseline_detection.py
-```
-
-Outputs:
-
-```text
-outputs/detections/
-outputs/visualizations/detections/
 ```
 
 ---
@@ -145,15 +136,6 @@ outputs/tracks/tracked_detections.csv
 outputs/tracks/track_summary.csv
 ```
 
-Features:
-
-- IoU-based association
-- Class-consistent matching
-- Track creation
-- Track continuation
-- Occlusion handling
-- Track termination
-
 ---
 
 ## Prediction Export
@@ -170,27 +152,9 @@ Output:
 outputs/predictions.jsonl
 ```
 
-Each prediction contains:
-
-```json
-{
-  "video_id": "839878",
-  "frame_index": 1234,
-  "timestamp_sec": 41.1,
-  "class_label": "hair dryer",
-  "box": [x1, y1, x2, y2],
-  "track_id": 3,
-  "confidence": 0.72,
-  "method": "YOLO + IoU Tracker",
-  "notes": "possible occlusion or re-entry"
-}
-```
-
 ---
 
 ## Prediction Visualization
-
-Tracked predictions are rendered back onto sampled frames for inspection.
 
 Run:
 
@@ -198,32 +162,79 @@ Run:
 python3 src/visualize_predictions.py
 ```
 
-Reads:
+Outputs:
 
 ```text
-outputs/frames/<video_id>/
-outputs/tracks/tracked_detections.csv
-```
-
-Writes:
-
-```text
-outputs/visualizations/predictions/<video_id>/
+outputs/visualizations/predictions/
 outputs/visualizations/predictions/clips/
 ```
 
-Each visualization includes:
+---
+
+## Manual Evaluation Preparation
+
+Manual labels are stored in:
 
 ```text
-bounding box
-class label
-confidence score
-track_id
-new track marker
-possible re-entry marker
+data/evaluation/manual_labels.csv
 ```
 
-Short MP4 clips are generated to inspect temporal continuity and track stability.
+Run:
+
+```bash
+python3 src/prepare_manual_evaluation.py
+```
+
+Output:
+
+```text
+outputs/evaluation/manual_vs_predictions.csv
+```
+
+This file allows side-by-side inspection of manually reviewed labels and exported predictions.
+
+---
+
+## Baseline Evaluation
+
+Run:
+
+```bash
+python3 src/evaluate_predictions.py
+```
+
+Inputs:
+
+```text
+data/evaluation/manual_labels.csv
+outputs/predictions.jsonl
+```
+
+Outputs:
+
+```text
+outputs/evaluation/evaluation_details.csv
+outputs/evaluation/metrics_summary.csv
+outputs/evaluation/tracking_metrics.csv
+```
+
+Detection metrics:
+
+```text
+true positives
+false positives
+missed detections
+true negatives
+precision
+recall
+```
+
+Tracking metrics:
+
+```text
+track fragmentation
+ID switches
+```
 
 ---
 
@@ -235,29 +246,11 @@ Short MP4 clips are generated to inspect temporal continuity and track stability
 outputs/detections/
 ```
 
-Contains:
-
-```text
-per-frame detection files
-summary.csv
-```
-
----
-
 ## Tracking Outputs
 
 ```text
 outputs/tracks/
 ```
-
-Contains:
-
-```text
-tracked_detections.csv
-track_summary.csv
-```
-
----
 
 ## Prediction Outputs
 
@@ -265,38 +258,11 @@ track_summary.csv
 outputs/predictions.jsonl
 ```
 
----
-
 ## Visualization Outputs
-
-```text
-outputs/visualizations/detections/
-```
-
-Contains YOLO detection-only annotated images.
 
 ```text
 outputs/visualizations/predictions/
 ```
-
-Contains:
-
-```text
-bounding boxes
-class labels
-confidence scores
-track IDs
-new track markers
-possible re-entry markers
-```
-
-Short clips:
-
-```text
-outputs/visualizations/predictions/clips/
-```
-
----
 
 ## Evaluation Outputs
 
@@ -304,13 +270,13 @@ outputs/visualizations/predictions/clips/
 outputs/evaluation/
 ```
 
-Reserved for:
+Contains:
 
 ```text
-manual review subset
-metrics
-failure analysis
-reviewer feedback
+manual_vs_predictions.csv
+evaluation_details.csv
+metrics_summary.csv
+tracking_metrics.csv
 ```
 
 ---
@@ -319,16 +285,6 @@ reviewer feedback
 
 ```bash
 pip install -r requirements.txt
-```
-
-```text
-opencv-python
-numpy
-pandas
-tqdm
-pyyaml
-requests
-ultralytics
 ```
 
 ---
@@ -347,4 +303,8 @@ python3 src/run_tracking.py
 python3 src/export_predictions_jsonl.py
 
 python3 src/visualize_predictions.py
+
+python3 src/prepare_manual_evaluation.py
+
+python3 src/evaluate_predictions.py
 ```
