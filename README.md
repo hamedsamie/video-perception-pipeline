@@ -21,6 +21,9 @@
   - [8. Reviewer Feedback Loop](#8-reviewer-feedback-loop)
   - [9. Bounded Improvement](#9-bounded-improvement)
   - [10. Results and Analysis](#10-results-and-analysis)
+    - [Detection Performance](#detection-performance)
+    - [Tracking Performance](#tracking-performance)
+    - [Interpretation](#interpretation)
   - [11. Failure Analysis](#11-failure-analysis)
   - [12. Assumptions](#12-assumptions)
   - [13. Limitations](#13-limitations)
@@ -64,8 +67,6 @@ Videos are downloaded and validated before processing.
 ### Frame Sampling
 
 One frame is sampled every second.
-
-Timestamp computation:
 
 ```text
 timestamp_sec = original_frame_index / fps
@@ -133,6 +134,8 @@ Metrics:
 - Track fragmentation
 - ID switches
 
+Manual labels were created through visual inspection of a subset of sampled frames. A target object was considered present when it was visually identifiable in the frame, including cases where the object was partially visible or partially occluded. Because visibility judgments can be subjective in ambiguous frames, the resulting metrics should be interpreted as approximate indicators of performance rather than definitive benchmark measurements.
+
 ## 8. Reviewer Feedback Loop
 
 Simulated reviewer feedback focuses on:
@@ -156,7 +159,46 @@ Observed outcome:
 
 ## 10. Results and Analysis
 
-The pipeline successfully produces detections, tracks, visualizations, exports, and evaluation artifacts. Performance remains limited because the detector is not specialized for the selected target objects.
+The pipeline successfully completed frame sampling, object detection, temporal tracking, prediction export, visualization generation, and evaluation.
+
+### Detection Performance
+
+Evaluation was performed on a manually reviewed subset containing 100 annotated target-object instances.
+
+| Metric            | Value |
+| ----------------- | ----: |
+| True Positives    |     6 |
+| False Positives   |     0 |
+| Missed Detections |    94 |
+| Precision         |  1.00 |
+| Recall            |  0.06 |
+
+No target-object false positives were observed within the manually reviewed subset, resulting in a measured precision of 1.00. However, this metric only reflects evaluation of the selected target objects and should not be interpreted as overall detector precision. Visual inspection showed that the detector occasionally produced incorrect detections for non-target classes.
+
+Recall remained very low, with most target-object instances not detected by the baseline model. The detector therefore behaved conservatively: it generated few target-object false positives but frequently failed to detect the target object when it was present.
+
+The dominant failure mode was missed detections rather than incorrect target-object detections.
+
+### Tracking Performance
+
+| Video ID | Target Object | Track Fragmentation | ID Switches |
+| -------- | ------------- | ------------------: | ----------: |
+| 165895   | Wooden Spoon  |                   4 |           4 |
+| 839878   | Hairdryer     |                   0 |           0 |
+
+Tracking quality varied between the two selected videos.
+
+The wooden spoon sequence produced multiple track fragmentations and identity switches. These failures were caused by intermittent detections, partial occlusions, object motion, and viewpoint changes. When detections disappeared and later reappeared, the IoU-based tracker frequently created a new track instead of reconnecting the object to its previous identity.
+
+The hairdryer sequence exhibited more stable tracking behavior within the reviewed subset and did not produce fragmentation or identity-switch events.
+
+### Interpretation
+
+The evaluation suggests that the primary limitation of the pipeline is object detection rather than track association.
+
+Because the tracker relies on incoming detections, missed detections directly reduce tracking quality. Sparse detections lead to fragmented tracks and unstable identities, even when the tracking logic itself behaves correctly.
+
+The results are consistent with expectations for a lightweight baseline built using a generic YOLOv8n detector and a simple IoU-based tracker.
 
 ## 11. Failure Analysis
 
@@ -167,6 +209,8 @@ Observed failure modes:
 - Track fragmentation
 - Viewpoint changes
 - Re-entry failures
+
+The selected target objects frequently appear under challenging conditions such as hand occlusion, motion blur, partial visibility, and changing viewpoints. These conditions reduce detector confidence and contribute directly to tracking instability.
 
 ## 12. Assumptions
 
@@ -183,6 +227,8 @@ Observed failure modes:
 - No appearance-based re-identification.
 - No segmentation.
 - Small evaluation subset.
+- Manual annotations were not independently validated and may contain subjective judgments in ambiguous frames.
+- Simulated reviewer feedback provides qualitative observations rather than definitive explanations of detector failures.
 
 ## 14. Future Work
 
@@ -239,4 +285,10 @@ outputs/evaluation/
 
 ## 19. Conclusion
 
-This project demonstrates a complete lightweight video perception workflow including ingestion, detection, tracking, export, visualization, evaluation, reviewer feedback, and bounded improvement. The pipeline serves as a reproducible baseline and highlights opportunities for future improvements in detection and tracking quality.
+This project demonstrates a complete lightweight video perception workflow including video ingestion, frame sampling, object detection, temporal tracking, prediction export, visualization, evaluation, reviewer feedback, and bounded improvement.
+
+The evaluation highlighted several challenges associated with the selected videos, particularly missed detections, occlusions, viewpoint changes, and tracking instability. While the baseline detector successfully identified some target-object instances, many remained undetected, which in turn affected tracking performance.
+
+The reported metrics and reviewer observations provide a useful indication of system behavior, although they are based on a relatively small manually reviewed subset and should be interpreted accordingly.
+
+Overall, the project establishes a reproducible baseline pipeline and demonstrates an end-to-end evaluation and improvement workflow. The results also highlight several directions for future work, including stronger object representations, appearance-based tracking, segmentation, and larger-scale evaluation.
