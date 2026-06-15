@@ -1,4 +1,74 @@
 # =====================================================
+# Python
+# =====================================================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Type checking / linting
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# =====================================================
+# IDEs / Editors
+# =====================================================
+
+.vscode/
+.idea/
+
+# =====================================================
+# OS files
+# =====================================================
+
+.DS_Store
+Thumbs.db
+
+# =====================================================
+# Environment variables
+# =====================================================
+
+.env
+.env.*
+
+# =====================================================
+# Project Data
+# =====================================================
+
+# Downloaded videos
+data/videos/
+
+# Video files inside downloaded dataset
+data/videos/*.mp4
+data/videos/*.avi
+data/videos/*.mov
+data/videos/*.mkv
+data/videos/*.webm
+
+# =====================================================
 # Generated Outputs
 # =====================================================
 
@@ -6,39 +76,57 @@
 outputs/frames/
 outputs/detections/
 outputs/tracks/
-
-# Generated videos (if large)
 outputs/videos/
 
-# Ignore all evaluation outputs by default
+# Ignore evaluation outputs by default
 outputs/evaluation/*
 !outputs/evaluation/.gitkeep
 !outputs/evaluation/*.csv
 !outputs/evaluation/*.json
 
-# Ignore all visualizations by default
+# Ignore visualizations by default
 outputs/visualizations/*
+!outputs/visualizations/
 !outputs/visualizations/.gitkeep
 !outputs/visualizations/**/*.jpg
 !outputs/visualizations/**/*.png
 !outputs/visualizations/**/*.mp4
+!outputs/visualizations/predictions/
+!outputs/visualizations/predictions/**
 
 # Ignore exports by default
 outputs/*
+!outputs/evaluation/
+!outputs/visualizations/
 !outputs/predictions.jsonl
 
-# Allow visualizations and evaluation folders
-!outputs/visualizations/
-!outputs/evaluation/
+# =====================================================
+# Models / Weights
+# =====================================================
 
-# Downloaded Videos (must never be committed)
-data/videos/**
-*.mp4
-*.avi
-*.mov
-*.mkv
-*.webm
-
-# YOLO weights
 yolov8n.pt
 *.pt
+*.pth
+*.onnx
+*.engine
+
+# Ultralytics
+runs/
+
+# =====================================================
+# Logs
+# =====================================================
+
+*.log
+
+# =====================================================
+# Keep folder structure
+# =====================================================
+
+!data/.gitkeep
+!configs/.gitkeep
+!src/.gitkeep
+!docs/.gitkeep
+!outputs/.gitkeep
+!outputs/evaluation/.gitkeep
+!outputs/visualizations/.gitkeep
