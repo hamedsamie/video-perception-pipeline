@@ -267,9 +267,9 @@ pip install -r requirements.txt
 python3 src/download_videos.py
 python3 src/sample_frames.py
 python3 src/run_baseline_detection.py
-python3 src/track_detections.py
+python3 src/run_tracking.py
 python3 src/export_predictions_jsonl.py
-python3 src/generate_visualizations.py
+python3 src/visualize_predictions.py
 python3 src/evaluate_predictions.py
 ```
 
