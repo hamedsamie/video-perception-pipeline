@@ -1,130 +1,44 @@
 # =====================================================
-# Python
+# Generated Outputs
 # =====================================================
 
-__pycache__/
-*.py[cod]
-*$py.class
+# Intermediate pipeline artifacts
+outputs/frames/
+outputs/detections/
+outputs/tracks/
 
-# Virtual environments
-.venv/
-venv/
-env/
-ENV/
+# Generated videos (if large)
+outputs/videos/
 
-# Python packaging
-build/
-dist/
-*.egg-info/
-.eggs/
+# Ignore all evaluation outputs by default
+outputs/evaluation/*
+!outputs/evaluation/.gitkeep
+!outputs/evaluation/*.csv
+!outputs/evaluation/*.json
 
-# Testing / coverage
-.pytest_cache/
-.coverage
-.coverage.*
-htmlcov/
+# Ignore all visualizations by default
+outputs/visualizations/*
+!outputs/visualizations/.gitkeep
+!outputs/visualizations/**/*.jpg
+!outputs/visualizations/**/*.png
+!outputs/visualizations/**/*.mp4
 
-# Type checking / linting
-.mypy_cache/
-.ruff_cache/
-.pyre/
-.pytype/
+# Ignore exports by default
+outputs/*
+!outputs/predictions.jsonl
 
-# Jupyter
-.ipynb_checkpoints/
+# Allow visualizations and evaluation folders
+!outputs/visualizations/
+!outputs/evaluation/
 
-# =====================================================
-# IDEs / Editors
-# =====================================================
-
-.vscode/
-.idea/
-
-# =====================================================
-# OS files
-# =====================================================
-
-.DS_Store
-Thumbs.db
-
-# =====================================================
-# Environment variables
-# =====================================================
-
-.env
-.env.*
-
-# =====================================================
-# Project Data
-# =====================================================
-
-# Downloaded videos
-data/videos/
-
-# Video files
+# Downloaded Videos (must never be committed)
+data/videos/**
 *.mp4
 *.avi
 *.mov
 *.mkv
 *.webm
 
-# =====================================================
-# Generated Outputs
-# =====================================================
-
-# Sampled frames
-outputs/frames/
-
-# Detection results
-outputs/detections/
-
-# Tracking results
-outputs/tracks/
-
-# Visualization artifacts
-outputs/visualizations/
-
-# Evaluation artifacts
-outputs/evaluation/
-
-# Prediction exports
-outputs/*.jsonl
-outputs/*.csv
-
-# Generated videos
-outputs/videos/
-
-# =====================================================
-# Models / Weights
-# =====================================================
-
+# YOLO weights
+yolov8n.pt
 *.pt
-*.pth
-*.onnx
-*.engine
-
-# Ultralytics
-runs/
-
-# =====================================================
-# Logs
-# =====================================================
-
-*.log
-
-# =====================================================
-# Keep folder structure
-# =====================================================
-
-!data/.gitkeep
-!configs/.gitkeep
-!src/.gitkeep
-!docs/.gitkeep
-!outputs/.gitkeep
-!outputs/evaluation/.gitkeep
-!outputs/visualizations/.gitkeep
-
-# =====================================================
-# Input Videos
-# =====================================================
-data/videos/

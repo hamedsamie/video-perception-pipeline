@@ -1,0 +1,3 @@
+video_id,class_label,reviewed_target_detections,unique_track_ids,track_ids,track_fragmentation,id_switches
+165895,wooden spoon,6,5,183;26;58;72;85,4,4
+839878,hairdryer,0,0,,0,0
